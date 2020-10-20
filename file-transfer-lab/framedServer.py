@@ -4,11 +4,11 @@ import socket
 import re
 import params
 switchesVarDefaults = (
-    (('-1', '--listPort'), 'listPort', 50001),
-    (('-?', '--usage'), "usage", False),
+    (('-1', '--listenPort'), 'listenPort', 50001),
+    (('-?', '--usage'), "usage", False)
     )
 progname = "fileServer"
-paramMap = params.parseParams(switchVarDefaults)
+paramMap = params.parseParams(switchesVarDefaults)
 
 listenPort = paramMap['listenPort']
 
@@ -28,10 +28,11 @@ print("connection rec'd from", addr)
 from framedSock import framedSend, framedReceive
 
 while True:
-    payload = framedReceive(sock, debug)
-    if debug: print("rec'd", payload)
-    if not payload:
-        break
-    payload += b"!"
-    framedSend(sock, payload, debug)
-    
+    sock, addr = lsock.accept()
+    if not os.fork():
+        print("new child process handling connection from ", addr)
+        payload = framedReceive(sock)
+        if not payload:
+            break
+        payload += b"!"
+        framedSend(sock, payload)

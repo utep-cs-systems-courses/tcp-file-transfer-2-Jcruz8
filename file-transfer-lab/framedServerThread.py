@@ -4,7 +4,7 @@ import socket
 import re
 import params
 switchesVarDefaults = (
-    (('-1', '--listPort'), 'listPort', 50001),
+    (('-1', '--listenPort'), 'listenPort', 50001),
     (('-?', '--usage'), "usage", False)
     )
 progname = "fileServer"
