@@ -1,15 +1,17 @@
-import socket, sys, re
+import socket, sys, re, os
 from os.path import exists
 
 sys.path.append("../lib")
 import params
+
+from framedSock import framedSend, framedReceive
+from encapFramedSock import EncapFramedSock
 
 switchesVarDefaults = (
     (('-s', '--server'), 'server', "127.0.0.1:50001"),
     (('-?', '--usage'), "usage", False)
     )
 
-from encapFramedSock import EncapFramedSock
 progname = "framedClient"
 paramMap = params.parseParams(switchesVarDefaults)
 
@@ -43,7 +45,7 @@ if exists(finput):
     file_copy = open(finput, 'rb')
     file_data = file_copy.read()
     file_copy.close()
-    file_name = input("what do you want to save the file as")
+    file_name = input("what do you want to save the file as: ")
     framedSend(s, file_name.encode())
     file_exists = framedReceive(s)
     file_exists = file_exists.decode()

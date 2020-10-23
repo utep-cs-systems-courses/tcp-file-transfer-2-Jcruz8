@@ -1,14 +1,18 @@
-import sys
+import sys, os
 sys.path.append("../lib")
 import socket
 import re
 import params
+
+from os.path import exists
+from threading import Thread, enumerate, Lock
+
 switchesVarDefaults = (
     (('-1', '--listenPort'), 'listenPort', 50001),
     (('-?', '--usage'), "usage", False)
     )
 progname = "fileServer"
-paramMap = params.parseParams(switchVarDefaults)
+paramMap = params.parseParams(switchesVarDefaults)
 
 listenPort = paramMap['listenPort']
 
@@ -32,7 +36,7 @@ class Server(Thread):
         self.fsock = EncapFramedSock(sockAddr)
 
     def run(self):
-        print("new thread handling connection from," self.addr)
+        print("new thread handling connection from", self.addr)
         while True:
             payload = self.fsock.receive()
             if not payload:
@@ -43,7 +47,7 @@ class Server(Thread):
                 self.fsock.send(b"True")
             else:
                 self.fsock.send(b"False")
-                payload2 = self.fock.receive()
+                payload2 = self.fsock.receive()
                 if not payload2:
                     break
                 self.fsock.send(payload2)
