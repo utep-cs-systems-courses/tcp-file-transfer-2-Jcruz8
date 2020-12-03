@@ -6,6 +6,10 @@ import params
 
 from os.path import exists
 from threading import Thread, enumerate, Lock
+global dictionary
+global dictLock
+dictLock = Lock()
+dictionary = dict()
 
 switchesVarDefaults = (
     (('-1', '--listenPort'), 'listenPort', 50001),
@@ -36,6 +40,7 @@ class Server(Thread):
         self.fsock = EncapFramedSock(sockAddr)
 
     def run(self):
+        global dictionary, dictLock
         print("new thread handling connection from", self.addr)
         while True:
             payload = self.fsock.receive()
@@ -46,14 +51,26 @@ class Server(Thread):
             if exists(payload):
                 self.fsock.send(b"True")
             else:
-                self.fsock.send(b"False")
-                payload2 = self.fsock.receive()
-                if not payload2:
-                    break
-                self.fsock.send(payload2)
-                output = open(payload, 'wb')
-                output.write(payload2)
-                output.close()
+                dictLock.acquire()
+                currentCheck = dictionary.get(payload)
+                if currentCheck == 'running':
+                    self.fsock.send(b"True")
+                    dictLock.release()
+                else:
+                    dictionary[payload] = "running"
+                    dictLock.release()
+                    
+                    self.fsock.send(b"False")
+                    payload2 = self.fsock.receive()
+                    if not payload2:
+                        sys.exit(0)
+                    self.fsock.send(payload2)
+                    output = open(payload, 'wb')
+                    output.write(payload2)
+                    output.close()
+                    dictLock.acquire()
+                    del dictionary[payload]
+                    dictLock.release()
                 self.fsock.close()
 
 while True:

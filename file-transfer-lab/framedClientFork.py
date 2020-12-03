@@ -8,7 +8,7 @@ from framedSock import framedSend, framedReceive
 from encapFramedSock import EncapFramedSock
 
 switchesVarDefaults = (
-    (('-s', '--server'), 'server', "127.0.0.1:50001"),
+    (('-s', '--server'), 'server', "127.0.0.1:50000"),
     (('-?', '--usage'), "usage", False)
     )
 
